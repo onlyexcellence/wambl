@@ -4,6 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "wambl/version"
 
 Gem::Specification.new do |spec|
+
   spec.name          = "wambl"
   spec.version       = Wambl::VERSION
   spec.authors       = ["onlyexcellence"]
@@ -35,8 +36,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "activesupport"
   spec.add_development_dependency "colorize"
 
-  # spec.files = %w{
-  #   lib/wambl.rb
-  #   lib/wambl/tools/first_class.rb
-  # }
+  spec.files = %w{
+    lib/wambl.rb
+    lib/wambl/tools/first_class.rb
+  }
+
 end
