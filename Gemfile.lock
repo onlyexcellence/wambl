@@ -2,6 +2,8 @@ PATH
   remote: .
   specs:
     wambl (0.2.0)
+      activesupport
+      colorize
 
 GEM
   remote: https://rubygems.org/
@@ -25,9 +27,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport
   bundler (~> 1.16)
-  colorize
   rake (~> 10.0)
   wambl!
 

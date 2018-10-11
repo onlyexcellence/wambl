@@ -1,5 +1,7 @@
 require "wambl/version"
 
 module Wambl
-  require 'wambl/tools/first_class'
+  require 'colorize'
+  require 'active_support/core_ext/numeric/time'
+  require 'wambl/tools/threader'
 end
