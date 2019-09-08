@@ -16,6 +16,7 @@ class Wambl::Threader
   attr_accessor :errors
   attr_accessor :extras
   attr_accessor :max_threads
+  attr_accessor :asynchronous
   attr_reader :thread_count
   # ======================================================
 
@@ -31,6 +32,7 @@ class Wambl::Threader
     self.errors = 0
     self.extras = []
     self.max_threads = 10
+    self.asynchronous = true
     @threads = []
     @thread_count = 0
 
@@ -54,12 +56,10 @@ class Wambl::Threader
 
     begin
       puts "\n-> Waiting for remaining threads to finish...".yellow
-      @threads.each &:join
+      @threads.each(&:join)
       puts "-> Exited!".yellow
     rescue Interrupt
-      puts "\n-> Killing remaining threads...".red
-      @threads.each &:exit
-      puts "-> Forced Exit!".red
+      force_exit
     end
 
     exit
@@ -74,10 +74,16 @@ class Wambl::Threader
 
     @start_time ||= Time.now
 
+    if !self.asynchronous
+      yield(*args)
+      self.printout
+      return
+    end
+
     @threads << Thread.new(*args) do
       begin
         @thread_count += 1
-        yield *args
+        yield(*args)
         @thread_count -= 1
       rescue => e
         @thread_count -= 1
@@ -108,11 +114,12 @@ class Wambl::Threader
   def printout
 
       c = Time.now - @start_time
-      output = ["\r#{"#{@rpm.to_i}/MIN".cyan} #{Time.at(c.to_f).utc.strftime("%H:%M:%S")} #{"->".yellow} #{self.errors+self.successful}/#{self.total} (#{self.successful.to_s.green} <--> #{self.errors.to_s.red})"]
-      # output << "Live: #{@threads.count}"
-      # output << "Count: #{@thread_count}"
+      output = []
+      output << ["#{"#{@rpm.to_i}/MIN".cyan}"] if self.asynchronous
+      output << ["#{Time.at(c.to_f).utc.strftime("%H:%M:%S")}"]
+      output << ["#{self.errors+self.successful}/#{self.total} (#{self.successful.to_s.green} <--> #{self.errors.to_s.red})"]
       output += self.extras
-      print "#{output.join(" :: ".yellow)}    "
+      print "\r#{output.join(" :: ".yellow)}    "
 
     end
   # ======================================================
@@ -124,6 +131,16 @@ class Wambl::Threader
   end
   def error
     self.errors += 1
+  end
+  # ======================================================
+
+  # Force Exit
+  # ======================================================
+  def force_exit
+    @monitor.try(:exit)
+    puts "\n-> Killing remaining threads...".red
+    @threads.each(&:exit)
+    puts "-> Forced Exit!".red
   end
   # ======================================================
 
