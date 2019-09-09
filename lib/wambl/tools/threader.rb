@@ -48,7 +48,7 @@ class Wambl::Threader
     @threads.each &:join
     sleep 1
     @monitor.exit
-    puts "\n-> Done!".green if self.log
+    puts "\n-> Done!".light_green if self.log
 
   rescue Interrupt
 
@@ -89,7 +89,7 @@ class Wambl::Threader
         @thread_count -= 1
         self.errors += 1
         if self.log_errors
-          output = [e.message.red]
+          output = [e.message.light_red]
           output += e.backtrace.map(&:yellow)
           print "\n#{output.join("\n")}\n"
         end
@@ -117,7 +117,7 @@ class Wambl::Threader
       output = []
       output << ["#{"#{@rpm.to_i}/MIN".cyan}"] if self.asynchronous
       output << ["#{Time.at(c.to_f).utc.strftime("%H:%M:%S")}"]
-      output << ["#{self.errors+self.successful}/#{self.total} (#{self.successful.to_s.green} <--> #{self.errors.to_s.red})"]
+      output << ["#{self.errors+self.successful}/#{self.total} (#{self.successful.to_s.light_green} <--> #{self.errors.to_s.light_red})"]
       output += self.extras
       print "\r#{output.join(" :: ".yellow)}    "
 
@@ -138,9 +138,9 @@ class Wambl::Threader
   # ======================================================
   def force_exit
     @monitor.try(:exit)
-    puts "\n-> Killing remaining threads...".red
+    puts "\n-> Killing remaining threads...".light_red
     @threads.each(&:exit)
-    puts "-> Forced Exit!".red
+    puts "-> Forced Exit!".light_red
   end
   # ======================================================
 
