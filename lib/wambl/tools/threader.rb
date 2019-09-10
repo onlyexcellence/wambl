@@ -115,9 +115,16 @@ class Wambl::Threader
 
       c = Time.now - @start_time
       output = []
-      output << ["#{"#{@rpm.to_i}/MIN".cyan}"] if self.asynchronous
-      output << ["#{Time.at(c.to_f).utc.strftime("%H:%M:%S")}"]
-      output << ["#{self.errors+self.successful}/#{self.total} (#{self.successful.to_s.light_green} <--> #{self.errors.to_s.light_red})"]
+      if self.asynchronous
+        output << "#{"#{@rpm.to_i}/MIN".cyan}"
+        output << "#{Time.at(c.to_f).utc.strftime("%H:%M:%S")}"
+        if self.completed > 100
+          actual_rate = (self.completed.to_f / c.to_f) * 60.0
+          output << "#{actual_rate.round}/MIN".light_green
+          output << "#{Time.at(((self.total-self.completed).to_f / actual_rate) * 60.0).utc.strftime("%H:%M:%S")}".light_green
+        end
+      end
+      output << "#{self.completed}/#{self.total} (#{self.successful.to_s.light_green} <--> #{self.errors.to_s.light_red})"
       output += self.extras
       print "\r#{output.join(" :: ".yellow)}    "
 
@@ -131,6 +138,9 @@ class Wambl::Threader
   end
   def error
     self.errors += 1
+  end
+  def completed
+    self.errors+self.successful
   end
   # ======================================================
 
